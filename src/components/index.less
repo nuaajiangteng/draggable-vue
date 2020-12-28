@@ -1,0 +1,126 @@
+@border: 1px solid #e8e8e8;
+
+.canvas {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.header {
+  height: 60px;
+  border-bottom: @border;
+}
+
+.content {
+  position: relative;
+  display: flex;
+  flex: 1;
+  &-left {
+    width: 200px;
+    border-right: @border;
+  }
+  &-right {
+    width: 260px;
+    border-left: @border;
+  }
+  &-center {
+    position: relative;
+    flex: 1;
+    margin: 10px;
+    background: white;
+    border: @border;
+    .common-class {
+      box-sizing: border-box;
+      // background: white;
+      position: absolute;
+      // border: @border;
+      cursor: pointer;
+      user-select: none;
+      &:hover {
+        color: #20c5b9;
+        border-color: #20c5b9 !important;
+      }
+    }
+  }
+}
+
+.activated {
+  color: #20c5b9;
+  border-color: #20c5b9 !important;
+}
+
+.table {
+  position: relative;
+  &:hover {
+    .left-icon,
+    .right-icon {
+      display: block;
+    }
+  }
+}
+
+.actions {
+  position: absolute;
+  display: none;
+  top: -14px;
+  margin-left: -27px;
+  left: 50%;
+}
+
+.delete-icon {
+  color: red;
+  font-size: 16px;
+  border: 1px solid red;
+  padding: 3px;
+  border-radius: 100%;
+  background: white;
+}
+
+tr {
+  td {
+    position: relative;
+    &:hover {
+      .actions {
+        display: block;
+      }
+    }
+  }
+}
+
+td {
+  min-width: 50px;
+}
+
+.left-icon {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  font-size: 30px;
+  height: 50px;
+  margin-top: -24px;
+  left: -30px;
+  display: none;
+}
+
+.right-icon {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  font-size: 30px;
+  height: 50px;
+  margin-top: -24px;
+  right: -30px;
+  display: none;
+}
+
+.minus {
+  margin-right: 5px;
+  background: white;
+}
+
+.plus {
+  margin-left: 5px;
+  background: white;
+}
