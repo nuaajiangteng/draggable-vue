@@ -49,6 +49,13 @@
         <a-select-option :key="0">不显示</a-select-option>
       </a-select>
     </div>
+    <div v-show="showScroll">
+      <span>跟随表格: </span>
+      <a-select v-model:value="curComInfo.isScroll">
+        <a-select-option :key="1">跟随</a-select-option>
+        <a-select-option :key="0">不跟随</a-select-option>
+      </a-select>
+    </div>
   </div>
 </template>
 
@@ -74,8 +81,9 @@ export default {
     const showTextAlign = computed(() => [2, 3].includes(curComInfo.value.type))
     const showBorder = computed(() => [4].includes(curComInfo.value.type))
     const borderSolid = computed(() => curComInfo.value?.style?.border?.split(" ")[1] || "dashed")
-    const showWidthHeight = computed(() => ![6].includes(curComInfo.value.type))
+    const showWidthHeight = computed(() => [1, 2, 3, 4, 5, 7].includes(curComInfo.value.type))
     const showCode = computed(() => [2].includes(curComInfo.value.type))
+    const showScroll = computed(() => [1, 2, 3, 4, 6, 7].includes(curComInfo.value.type))
     const barcode = () => {
       context.emit("barcode")
     }
@@ -97,6 +105,7 @@ export default {
       showBorder,
       showWidthHeight,
       showCode,
+      showScroll,
       borderSolid,
       barcode,
       qrCode,

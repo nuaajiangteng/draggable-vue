@@ -253,6 +253,7 @@ export default {
       const top = clientY - fixedTop - offsetY > 0 ? getTop(clientY - fixedTop - offsetY, 32) : 0
 
       const temp = {
+        isScroll: 0,
         type: Number(e.dataTransfer.getData("type")),
         text: e.dataTransfer.getData("title"),
         style: getStyle(left, top, Number(e.dataTransfer.getData("type")), e.dataTransfer.getData("border"))
@@ -429,6 +430,7 @@ export default {
       obj.components[obj.curIndex] = {
         type: 6,
         text,
+        isScroll: 0,
         style: {
           width: 1,
           height: 32,
@@ -444,6 +446,7 @@ export default {
       obj.components[obj.curIndex] = {
         type: 7,
         text,
+        isScroll: 0,
         style: {
           width: 100,
           height: 100,
