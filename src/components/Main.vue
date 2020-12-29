@@ -337,6 +337,7 @@ export default {
     const deleteComponent = () => {
       obj.components.splice(obj.curIndex, 1)
       obj.curIndex = null
+      renderComponents()
     }
 
     // 复制元素
@@ -350,6 +351,7 @@ export default {
           top: temp.style.top + 10
         }
       })
+      renderComponents()
     }
 
     // 置顶元素
@@ -358,6 +360,7 @@ export default {
       obj.components.splice(obj.curIndex, 1)
       obj.components.push(temp)
       obj.curIndex = obj.components.length - 1
+      renderComponents()
     }
 
     // 置底元素
@@ -366,6 +369,7 @@ export default {
       obj.components.splice(obj.curIndex, 1)
       obj.components.unshift(temp)
       obj.curIndex = 0
+      renderComponents()
     }
 
      // 上移或下移
@@ -380,6 +384,7 @@ export default {
       obj.components.splice(obj.curIndex, 1)
       obj.components.splice(obj.curIndex + number, 0, temp)
       obj.curIndex = obj.curIndex + number
+      renderComponents()
     }
 
     const changeStyle = ({ width, height, left, top }) => {
@@ -446,6 +451,34 @@ export default {
           top
         }
       }
+    }
+
+    // 删除、复制、置顶、置底、上移、下移后需要重新渲染条码和二维码
+    const renderComponents = () => {
+      setTimeout(() => {
+        obj.components.map((com, index) => ({ ...com, index })).filter(com => [6, 7].includes(com.type)).forEach(com => {
+          const { type, text, index, style: { width, height, displayValue } } = com
+          if (type === 6) { // 条形码
+            JsBarcode(`#${text}-${index}`, text, {
+              width: 1,
+              height: 32,
+              displayValue
+            })
+          }
+
+          if (type === 7) { // 二维码
+            const qrcodeEL = document.getElementById(`${text}-${index}`)
+            qrcodeEL.innerHTML = ""
+            new QRCode(qrcodeEL, {
+              text,
+              width,
+              height
+            })
+            const imgEl = qrcodeEL.getElementsByTagName("img")[0]
+            imgEl.setAttribute("draggable", false)
+          }
+        })
+      })
     }
 
     // 预览
