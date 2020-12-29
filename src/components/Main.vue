@@ -1,7 +1,7 @@
 <template>
   <div @contextmenu.prevent class="canvas">
     <div class="header">
-      <Header />
+      <Header @preview="previewCanvas" />
     </div>
     <div class="content">
       <div class="content-left">
@@ -52,6 +52,10 @@
       @clearActivated="clearActivated"
       @copyComponent="copyComponent"
     />
+    <Preview
+      ref="preview"
+      :components="components"
+    />
   </div>
 </template>
 
@@ -67,6 +71,7 @@ import RightMenu from "./components/RightMenu"
 import Dot from "./components/Dot"
 import Line from "./components/Line"
 import Header from "./components/Header"
+import Preview from "./components/Preview"
 
 const ADSORPTION = 3 // 吸附补偿像素
 const canvasWidth = 1200
@@ -166,6 +171,7 @@ export default {
     Dot,
     Line,
     Header,
+    Preview,
     CaretLeftOutlined,
     CaretRightOutlined,
     DeleteOutlined,
@@ -174,6 +180,7 @@ export default {
   },
   setup() {
     const rightMenu = ref()
+    const preview = ref()
     const line = ref()
     const obj = reactive({
       components: [], // 当前拥有的拖动控件
@@ -375,7 +382,6 @@ export default {
       obj.curIndex = obj.curIndex + number
     }
 
-
     const changeStyle = ({ width, height, left, top }) => {
       obj.components[obj.curIndex].style = {
         ...obj.components[obj.curIndex].style,
@@ -442,6 +448,10 @@ export default {
       }
     }
 
+    // 预览
+    const previewCanvas = () => {
+      preview.value.preview()
+    }
     return {
       ...toRefs(obj),
       handleDrop,
@@ -463,7 +473,9 @@ export default {
       deleteColumn,
       changeWidth,
       barcode,
-      qrCode
+      qrCode,
+      preview,
+      previewCanvas
     }
   }
 

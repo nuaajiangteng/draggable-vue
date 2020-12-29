@@ -14,7 +14,7 @@ import { reactive, toRefs, onMounted } from "vue"
 
 export default {
   name: "RightMenu",
-  setup(props, content) {
+  setup(props, context) {
     onMounted(() => {
       // 监听鼠标事件
       window.addEventListener("mousedown", (e) => {
@@ -22,7 +22,7 @@ export default {
           position.display = "none" // 隐藏右键菜单
         }
         if (e.target.className === "content-center") {
-          content.emit("clearActivated") // 激活状态去除
+          context.emit("clearActivated") // 激活状态去除
         }
       })
     })
@@ -37,23 +37,23 @@ export default {
       position.display = "block"
     }
     const deleteComponent = () => {
-      content.emit("deleteComponent")
+      context.emit("deleteComponent")
       position.display = "none"
     }
     const copyComponent = () => {
-      content.emit("copyComponent")
+      context.emit("copyComponent")
       position.display = "none"
     }
     const placeTop = () => {
-      content.emit("placeTop")
+      context.emit("placeTop")
       position.display = "none"
     }
     const placeBottom = () => {
-      content.emit("placeBottom")
+      context.emit("placeBottom")
       position.display = "none"
     }
     const placeUpDown = (number) => {
-      content.emit("placeUpDown", number)
+      context.emit("placeUpDown", number)
       position.display = "none"
     }
     return {

@@ -43,7 +43,7 @@
       <a-button @click="qrCode" type="primary">转为二维码</a-button>
     </div>
     <div v-show="curComInfo.type === 6">
-      <span>y坐标: </span>
+      <span>条码文字: </span>
       <a-select v-model:value="curComInfo.style.displayValue">
         <a-select-option :key="1">显示</a-select-option>
         <a-select-option :key="0">不显示</a-select-option>

@@ -2,6 +2,7 @@
   <a-button>撤销</a-button>
   <a-button>重做</a-button>
   <a-button>插入图片</a-button>
+  <a-button @click="preview">预览</a-button>
   <a-button type="primary">保存</a-button>
   <a-button type="danger">清空画布</a-button>
   <span style="margin-left: 10px">画布大小: </span>
@@ -11,14 +12,15 @@
 </template>
 
 <script>
-import {  } from "vue"
-
 export default {
   name: "Header",
-  setup(props, content) {
-    
+  emits: ["preview"],
+  setup(props, context) {
+    const preview = () => {
+      context.emit("preview")
+    }
     return {
-      
+      preview
     }
   }
 }
