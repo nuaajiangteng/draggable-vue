@@ -21,7 +21,7 @@ export default {
         if (e.target.className) {
           position.display = "none" // 隐藏右键菜单
         }
-        if (e.target.className === "content-center") {
+        if (["content-center", "draggable"].includes(e.target.className)) {
           context.emit("clearActivated") // 激活状态去除
         }
       })

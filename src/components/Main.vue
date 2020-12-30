@@ -1,7 +1,7 @@
 <template>
   <div @contextmenu.prevent class="canvas">
     <div class="header">
-      <Header @preview="previewCanvas" :canvas="canvas" />
+      <Header @preview="previewCanvas" @addImg="addImg" :canvas="canvas" />
     </div>
     <div class="content">
       <div class="content-left">
@@ -489,6 +489,20 @@ export default {
       })
     }
 
+    const addImg = (imgUrl, height) => {
+      obj.components.push({
+        type: 1,
+        isScroll: 0,
+        text: imgUrl,
+        style: {
+          width: 100,
+          height,
+          left: 0,
+          top: 0
+        }
+      })
+    }
+
     // 预览
     const previewCanvas = () => {
       preview.value.preview()
@@ -517,7 +531,8 @@ export default {
       barcode,
       qrCode,
       preview,
-      previewCanvas
+      previewCanvas,
+      addImg
     }
   }
 
