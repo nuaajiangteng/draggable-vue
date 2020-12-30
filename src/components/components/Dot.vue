@@ -9,9 +9,6 @@
 import { computed } from "vue"
 const pointList = ["nw", "n", "ne", "w", "e", "sw", "s", "se"]
 const COMPENSATION = 4 // 偏移量补偿
-const canvasWidth = 1200
-const canvasHieght = 511
-
 
 const handleNewLeft = (width, left, initWidth, initLeft) => {
   if (left === initLeft) {
@@ -25,7 +22,7 @@ const handleNewLeft = (width, left, initWidth, initLeft) => {
   }
 }
 
-const handleNewWidth = (width, left, initWidth, initLeft) => {
+const handleNewWidth = (width, left, initWidth, initLeft, canvasWidth) => {
   const _left = left !== initLeft ? left : initLeft
   if (width <= 1) {
     return 1
@@ -50,23 +47,22 @@ const handleNewTop = (height, top, initHieght, initTop) => {
   }
 }
 
-const handleNewHeight = (height, top, initHeight, initTop) => {
+const handleNewHeight = (height, top, initHeight, initTop, canvasHeight) => {
   const _top = top !== initTop ? top : initTop
   if (height <= 1) {
     return 1
   } else if (top < 0) {
     return initHeight + initTop
-  } else if (height + _top > canvasHieght) { // 高度超出画布高度就不变
-    return canvasHieght - _top
+  } else if (height + _top > canvasHeight) { // 高度超出画布高度就不变
+    return canvasHeight - _top
   } else {
     return height
   }
 }
 
-
 export default {
   name: "Dot",
-  props: ["style", "showDot"],
+  props: ["canvas", "style", "showDot"],
   setup(props, content) {
     const showDot = computed(() => props.showDot)
     const getStyle = (point, index) => {
@@ -106,9 +102,9 @@ export default {
         const _offsetT = [0, 1, 2].includes(index) ? 1 : 0 // 判断top偏移量是正累加还是负累加
        
         const newLeft = handleNewLeft(width + difX * _offsetX, left + difX * _offsetL, width, left)
-        const newWidth = handleNewWidth(width + difX * _offsetX, left + difX * _offsetL, width, left)
+        const newWidth = handleNewWidth(width + difX * _offsetX, left + difX * _offsetL, width, left, props.canvas.canvasWidth)
         const newTop = handleNewTop(height + difY * _offsetY, top + difY * _offsetT, height, top)
-        const newHeight = handleNewHeight(height + difY * _offsetY, top + difY * _offsetT, height, top)
+        const newHeight = handleNewHeight(height + difY * _offsetY, top + difY * _offsetT, height, top, props.canvas.canvasHeight)
         content.emit("changeStyle", {
           width: newWidth,
           left: newLeft,

@@ -63,11 +63,11 @@
 import { computed, reactive, watch, toRefs } from "vue"
 
 const canvasWidth = 1200
-const canvasHieght = 511
+const canvasHeight = 600
 
 export default {
   name: "UnitInfo",
-  props: ["components", "curIndex"],
+  props: ["components", "curIndex", "canvas"],
   setup(props, context) {
     let curComInfo = computed(() => props.components?.[props.curIndex] || { style: {} })
     const maxValue = reactive({ // 限制宽高左右的最大值
@@ -91,11 +91,12 @@ export default {
       context.emit("qrCode")
     }
     watch(curComInfo, (value) => {
+      const { canvasWidth, canvasHeight } = props.canvas
       const { width, height, left, top } = value.style
       maxValue.maxW = canvasWidth - left
-      maxValue.maxH = canvasHieght - top
+      maxValue.maxH = canvasHeight - top
       maxValue.maxL = canvasWidth - width
-      maxValue.maxT = canvasHieght - height
+      maxValue.maxT = canvasHeight - height
     }, { deep: true })
     return {
       curComInfo,

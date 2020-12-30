@@ -6,21 +6,25 @@
   <a-button type="primary">保存</a-button>
   <a-button type="danger">清空画布</a-button>
   <span style="margin-left: 10px">画布大小: </span>
-  <a-input-number :min="1" :precision="0" />
+  <a-input-number v-model:value="canvas.canvasWidth" :min="1" :precision="0" />
   <span> * </span>
-  <a-input-number :min="1" :precision="0" />
+  <a-input-number v-model:value="canvas.canvasHeight" :min="1" :precision="0" />
 </template>
 
 <script>
+import { reactive, toRefs, computed, ref, toRef } from "vue"
+
 export default {
   name: "Header",
+  props: ["canvas"],
   emits: ["preview"],
   setup(props, context) {
     const preview = () => {
       context.emit("preview")
     }
     return {
-      preview
+      preview,
+      canvas: props.canvas
     }
   }
 }

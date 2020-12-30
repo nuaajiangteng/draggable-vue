@@ -14,7 +14,7 @@
 }
 
 .content {
-  position: relative;
+  // position: relative;
   display: flex;
   flex: 1;
   &-left {
@@ -26,11 +26,13 @@
     border-left: @border;
   }
   &-center {
-    position: relative;
+    // position: relative;
     flex: 1;
     margin: 10px;
     background: white;
-    border: @border;
+    display: flex;
+    justify-content: center;
+    // border: @border;
     .common-class {
       box-sizing: border-box;
       // background: white;
@@ -123,4 +125,9 @@ td {
 .plus {
   margin-left: 5px;
   background: white;
+}
+
+.draggable {
+  position: relative;
+  border: @border;
 }

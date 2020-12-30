@@ -1,46 +1,48 @@
 <template>
   <div @contextmenu.prevent class="canvas">
     <div class="header">
-      <Header @preview="previewCanvas" />
+      <Header @preview="previewCanvas" :canvas="canvas" />
     </div>
     <div class="content">
       <div class="content-left">
         <UnitList />
       </div> 
-      <div class="content-center" @dragover="handleDragOver" @drop="handleDrop">
-        <div @contextmenu="contextmenu" @mousedown="mousedown($event, index)" :key="index" v-for="(component, index) in components" :class="[curIndex === index ? 'activated' : '','common-class']" :style="handleStyle(component.style, component.type)">
-          <Dot @changeStyle="changeStyle" :showDot="curIndex === index && ![5, 6].includes(component.type)" :style="component.style">
-            <img :draggable="false" v-if="component.type === 1" :src="component.text" :style="handleStyle(component.style)" />
-            <span v-if="[2, 3].includes(component.type)">{{ component.text }}</span>
-            <span v-if="component.type === 4" />
-            <div class="table" v-if="component.type === 5">
-              <span @click="addColumn('left', index)" class="left-icon"><CaretLeftOutlined /></span>
-              <table :style="handleStyle(component.style)" border="1">
-                <tr>
-                  <td :style="{ width: `${child.width}px` }" :key="_index" v-for="(child, _index) in component.children" @drop="handleDropTable(index, _index, $event)">
-                    {{ child.title }}
-                    <div class="actions">
-                      <MinusCircleOutlined class="minus" @click="changeWidth(index, _index, -1)" />
-                      <DeleteOutlined @click="deleteColumn(index, _index)" class="delete-icon" />
-                      <PlusCircleOutlined class="plus" @click="changeWidth(index, _index, 1)" />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td :style="{ width: `${child.width}px` }" :key="_index" v-for="(child, _index) in component.children" @drop="handleDropTable(index, _index, $event)">{{ child.field }}</td>
-                </tr>
-              </table>
-              <span @click="addColumn('right', index)" class="right-icon"><CaretRightOutlined /></span>
-            </div>
-            <svg :id="`${component.text}-${index}`" v-if="component.type === 6" />
-            <div :draggable="false" :id="`${component.text}-${index}`" v-if="component.type === 7" />
-          </Dot>
-        </div>
+      <div class="content-center">
+        <div class="draggable" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }" @dragover="handleDragOver" @drop="handleDrop">
+          <div @contextmenu="contextmenu" @mousedown="mousedown($event, index)" :key="index" v-for="(component, index) in components" :class="[curIndex === index ? 'activated' : '','common-class']" :style="handleStyle(component.style, component.type)">
+            <Dot :canvas="canvas" @changeStyle="changeStyle" :showDot="curIndex === index && ![5, 6].includes(component.type)" :style="component.style">
+              <img :draggable="false" v-if="component.type === 1" :src="component.text" :style="handleStyle(component.style)" />
+              <span v-if="[2, 3].includes(component.type)">{{ component.text }}</span>
+              <span v-if="component.type === 4" />
+              <div class="table" v-if="component.type === 5">
+                <span @click="addColumn('left', index)" class="left-icon"><CaretLeftOutlined /></span>
+                <table :style="handleStyle(component.style)" border="1">
+                  <tr>
+                    <td :style="{ width: `${child.width}px` }" :key="_index" v-for="(child, _index) in component.children" @drop="handleDropTable(index, _index, $event)">
+                      {{ child.title }}
+                      <div class="actions">
+                        <MinusCircleOutlined class="minus" @click="changeWidth(index, _index, -1)" />
+                        <DeleteOutlined @click="deleteColumn(index, _index)" class="delete-icon" />
+                        <PlusCircleOutlined class="plus" @click="changeWidth(index, _index, 1)" />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td :style="{ width: `${child.width}px` }" :key="_index" v-for="(child, _index) in component.children" @drop="handleDropTable(index, _index, $event)">{{ child.field }}</td>
+                  </tr>
+                </table>
+                <span @click="addColumn('right', index)" class="right-icon"><CaretRightOutlined /></span>
+              </div>
+              <svg :id="`${component.text}-${index}`" v-if="component.type === 6" />
+              <div :draggable="false" :id="`${component.text}-${index}`" v-if="component.type === 7" />
+            </Dot>
+          </div>
 
-        <Line ref="line" :components="components" :curIndex="curIndex" />
+          <Line ref="line" :components="components" :curIndex="curIndex" />
+        </div>
       </div>
       <div class="content-right">
-        <UnitInfo :components="components" :curIndex="curIndex" @barcode="barcode" @qrCode="qrCode" />
+        <UnitInfo :canvas="canvas" :components="components" :curIndex="curIndex" @barcode="barcode" @qrCode="qrCode" />
       </div>
     </div>
     <RightMenu
@@ -55,6 +57,7 @@
     <Preview
       ref="preview"
       :components="components"
+      :canvas="canvas"
     />
   </div>
 </template>
@@ -74,13 +77,10 @@ import Header from "./components/Header"
 import Preview from "./components/Preview"
 
 const ADSORPTION = 3 // 吸附补偿像素
-const canvasWidth = 1200
-const canvasHieght = 511
-const fixedLeft = 210
 const fixedTop = 70
 let time
 
-const getLeft = (left, width) => {
+const getLeft = (left, width, canvasWidth) => {
   if (left < 0) {
     return 0
   } else if (left + width > canvasWidth) {
@@ -90,11 +90,11 @@ const getLeft = (left, width) => {
   }
 }
 
-const getTop = (top, height) => {
+const getTop = (top, height, canvasHeight) => {
   if (top < 0) {
     return 0
-  } else if (top + height > canvasHieght) {
-    return canvasHieght - height
+  } else if (top + height > canvasHeight) {
+    return canvasHeight - height
   } else {
     return top
   }
@@ -179,6 +179,10 @@ export default {
     PlusCircleOutlined
   },
   setup() {
+    const canvas = reactive({
+      canvasWidth: 500,
+      canvasHeight: 500
+    })
     const rightMenu = ref()
     const preview = ref()
     const line = ref()
@@ -249,8 +253,9 @@ export default {
       // const top = e.offsetY - offsetY > 0 ? getTop(e.offsetY - offsetY, 32) : 0
       // drop会穿透到下方控件, 用client来计算
       const { clientX, clientY } = e
-      const left = clientX - fixedLeft - offsetX > 0 ? getLeft(clientX - fixedLeft - offsetX, 100) : 0
-      const top = clientY - fixedTop - offsetY > 0 ? getTop(clientY - fixedTop - offsetY, 32) : 0
+      const fixedLeft = (document.body.clientWidth - 460 - canvas.canvasWidth)/2 + 210
+      const left = clientX - fixedLeft - offsetX > 0 ? getLeft(clientX - fixedLeft - offsetX, 100, canvas.canvasWidth) : 0
+      const top = clientY - fixedTop - offsetY > 0 ? getTop(clientY - fixedTop - offsetY, 32, canvas.canvasHeight) : 0
 
       const temp = {
         isScroll: 0,
@@ -280,8 +285,8 @@ export default {
         let nearLeftIndex = -1
         let brotherLeftIndex
 
-        const _left = getLeft(moveEvent.clientX - startclientX + left, width)
-        const _top = getTop(moveEvent.clientY - startclientY + top, height)
+        const _left = getLeft(moveEvent.clientX - startclientX + left, width, canvas.canvasWidth)
+        const _top = getTop(moveEvent.clientY - startclientY + top, height, canvas.canvasHeight)
         obj.components[index].style.left = _left
         obj.components[index].style.top = _top
 
@@ -490,6 +495,7 @@ export default {
     }
     return {
       ...toRefs(obj),
+      canvas,
       handleDrop,
       handleDropTable,
       handleDragOver,

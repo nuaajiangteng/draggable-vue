@@ -2,9 +2,8 @@
   <teleport to="body">
     <div v-show="show" class="modal">
       <div @click="show = false" class="close">x</div>
-      <div class="content">
+      <div class="content" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }">
         <div :key="index" v-for="(component, index) in components" class="common-class" :style="handleStyle(component.style, component.type)">
-          
           <img v-if="component.type === 1" :src="component.text" :style="handleStyle(component.style)" />
           <span v-if="component.type === 2">{{ `{ ${component.text} }` }}</span>
           <span v-if="component.type === 3">{{ component.text }}</span>
@@ -49,7 +48,7 @@ const handleStyle = (style, type) => {
 }
 
 export default {
-  props: ["components"],
+  props: ["components", "canvas"],
   setup(props) {
     const show = ref(false)
     const components = computed(() => props.components)
@@ -76,7 +75,8 @@ export default {
       show,
       preview,
       hideModal,
-      handleStyle
+      handleStyle,
+      canvas: props.canvas
     }
   }
 }
@@ -97,8 +97,6 @@ export default {
 
   .content {
     position: relative;
-    width: 1200px;
-    height: 500px;
     background: white;
   }
 
