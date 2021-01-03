@@ -1,7 +1,13 @@
 <template>
   <div @contextmenu.prevent class="canvas">
     <div class="header">
-      <Header @preview="previewCanvas" @addImg="addImg" :canvas="canvas" />
+      <Header
+        @preview="previewCanvas"
+        @addImg="addImg"
+        @clear="clear"
+        @save="save"
+        :canvas="canvas"
+      />
     </div>
     <div class="content">
       <div class="content-left">
@@ -63,7 +69,7 @@
 </template>
 
 <script>
-import { reactive, toRefs, ref, computed, watch } from "vue"
+import { reactive, toRefs, ref, computed, watch, onMounted } from "vue"
 import { CaretLeftOutlined, CaretRightOutlined, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined } from "@ant-design/icons-vue"
 import JsBarcode from "jsbarcode"
 import QRCode from "qrcodejs2"
@@ -190,6 +196,12 @@ export default {
       components: [], // 当前拥有的拖动控件
       curIndex: null, // 当前选中控件下标
     })
+
+    onMounted(() => {
+      obj.components = JSON.parse(window.localStorage.getItem("components") || "[]")
+      renderComponents()
+    })
+
     watch(() => obj.components[obj.curIndex]?.style?.displayValue, (value) => {
       if (obj.components[obj.curIndex]?.type === 6) { // 条形码
         const { text } = obj.components[obj.curIndex]
@@ -503,6 +515,16 @@ export default {
       })
     }
 
+    const clear = () => {
+      window.localStorage.setItem("components", JSON.stringify(obj.components))
+      obj.components = []
+      obj.curIndex = null
+    }
+    
+    const save = () => {
+      window.localStorage.setItem("components", JSON.stringify(obj.components))
+    }
+
     // 预览
     const previewCanvas = () => {
       preview.value.preview()
@@ -532,7 +554,9 @@ export default {
       qrCode,
       preview,
       previewCanvas,
-      addImg
+      addImg,
+      clear,
+      save
     }
   }
 

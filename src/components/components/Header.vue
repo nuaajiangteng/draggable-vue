@@ -1,6 +1,4 @@
 <template>
-  <a-button>撤销</a-button>
-  <a-button>重做</a-button>
   <a-upload
     name="files"
     :show-upload-list="false"
@@ -11,8 +9,8 @@
     <a-button>插入图片</a-button>
   </a-upload>
   <a-button @click="preview">预览</a-button>
-  <a-button type="primary">保存</a-button>
-  <a-button type="danger">清空画布</a-button>
+  <a-button type="primary" @click="save">保存</a-button>
+  <a-button type="danger" @click="clear">清空画布</a-button>
   <span style="margin-left: 10px">画布大小: </span>
   <a-input-number v-model:value="canvas.canvasWidth" :min="1" :precision="0" />
   <span> * </span>
@@ -25,7 +23,7 @@ import { message } from "ant-design-vue"
 export default {
   name: "Header",
   props: ["canvas"],
-  emits: ["preview", "addImg"],
+  emits: ["preview", "addImg", "clear", "save"],
   setup(props, context) {
     const preview = () => {
       context.emit("preview")
@@ -51,11 +49,22 @@ export default {
         }
       }
     }
+
+    const clear = () => {
+      context.emit("clear")
+    }
+
+    const save = () => {
+      context.emit("save")
+    }
+
     return {
       preview,
       canvas: props.canvas,
       beforeUpload,
-      handleChange
+      handleChange,
+      clear,
+      save
     }
   }
 }

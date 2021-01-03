@@ -25,6 +25,8 @@
     border-left: @border;
   }
   &-center {
+    height: calc(100vh - 80px);
+    overflow-y: auto;
     flex: 1;
     margin: 10px;
     background: white;
@@ -125,4 +127,5 @@ td {
 .draggable {
   position: relative;
   border: @border;
+  box-sizing: content-box;
 }
