@@ -3,7 +3,7 @@
     v-for="(line, index) in lines"
     :key="line"
     v-show="lineStatus[line]"
-    :class="{ lineY: index < 3, lineX: index >= 3 }"
+    :class="{ lineX: index < 3, lineY: index >= 3 }"
     :style="{ top: `${tops[index]}px`, left: `${lefts[index-3]}px` }"
   />
 </template>
@@ -66,13 +66,13 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.lineY {
+.lineX {
   position: absolute;
   width: 100%;
   height: 1px;
   background: #59c7f9;
 }
-.lineX {
+.lineY {
   position: absolute;
   width: 1px;
   height: 100%;
