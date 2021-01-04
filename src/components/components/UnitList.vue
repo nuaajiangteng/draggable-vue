@@ -1,8 +1,8 @@
 <template>
   <div class="handleDragStart" @dragstart="handleDragStart">
     <h3>表格字段信息</h3>
-    <div draggable="true" data-title="商品编码" data-field="productName" data-type="1" class="unit">商品编码</div>
-    <div draggable="true" data-title="商品名称" data-field="productNo" data-type="1" class="unit">商品名称</div>
+    <div draggable="true" data-title="商品编码" data-field="productNo" data-type="1" class="unit">商品编码</div>
+    <div draggable="true" data-title="商品名称" data-field="productName" data-type="1" class="unit">商品名称</div>
     <div draggable="true" data-title="商品单价" data-field="price" data-type="1" class="unit">商品单价</div>
     <h3>字段信息</h3>
     <div draggable="true" data-title="name" data-type="2" class="unit">姓名</div>
