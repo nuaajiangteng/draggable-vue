@@ -303,11 +303,11 @@ export default {
         obj.components[index].style.top = _top
 
         for (let i=0; i<brotherComponents.length; i++) {
-          const ele = brotherComponents[i]
+          const { width, height, left, top } = brotherComponents[i].style
           const curTops = [_top, _top + height/2, _top + height]
           const curLefts = [_left, _left + width/2, _left + width]
-          const brotherTops = [ele.style.top, ele.style.top + ele.style.height/2, ele.style.top + ele.style.height]
-          const brotherLefts = [ele.style.left, ele.style.left + ele.style.width/2, ele.style.left + ele.style.width]
+          const brotherTops = [top, top + height/2, top + height]
+          const brotherLefts = [left, left + width/2, left + width]
           // console.log("当前", curTops, brotherTops)
           // 获取3条水平线和当前元素top的差值
           const _nearTopIndex = curTops.findIndex((e, index) => {
