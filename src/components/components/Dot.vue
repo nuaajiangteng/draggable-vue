@@ -1,6 +1,6 @@
 <template>
   <div class="dot">
-    <span :class="{ showDot }" @mousedown="mousedownPoint(index)" class="point" v-for="(point, index) in pointList" :style="getStyle(point, index)" />
+    <span :class="{ showDot }" @mousedown="mousedownPoint(index)" class="point" :key="point" v-for="(point, index) in pointList" :style="getStyle(point, index)" />
     <slot></slot>
   </div>
 </template>
