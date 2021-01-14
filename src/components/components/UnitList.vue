@@ -45,7 +45,7 @@ export default {
       e.dataTransfer.setData("border", e.target.dataset.border)
       e.dataTransfer.setData("offsetX", e.offsetX)
       e.dataTransfer.setData("offsetY", e.offsetY)
-      content.emit("showDragCopy", true)
+      content.emit("showDragCopy", e.target.dataset.type !== "1")
     }
     const handleDragEnd = () => {
       content.emit("showDragCopy", false)
