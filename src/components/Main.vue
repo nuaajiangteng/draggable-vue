@@ -209,6 +209,7 @@ export default {
           JsBarcode(`#${text}-${obj.curIndex}`, text, {
             width: 1,
             height: 32,
+            margin: 0,
             displayValue: value
           })
         })
