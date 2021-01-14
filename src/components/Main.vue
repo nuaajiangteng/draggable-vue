@@ -11,10 +11,11 @@
     </div>
     <div class="content">
       <div class="content-left">
-        <UnitList />
+        <UnitList @showDragCopy="value => showDragCopy = value" />
       </div> 
       <div class="content-center">
         <div class="draggable" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }" @dragover="handleDragOver" @drop="handleDrop">
+          <div class="draggable-copy" v-show="showDragCopy" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }"></div>
           <div @contextmenu="contextmenu" @mousedown="mousedown($event, index)" :key="index" v-for="(component, index) in components" :class="[curIndex === index ? 'activated' : '','common-class']" :style="handleStyle(component.style, component.type)">
             <Dot :canvas="canvas" @changeStyle="changeStyle" :showDot="curIndex === index && ![5, 6].includes(component.type)" :style="component.style">
               <img :draggable="false" v-if="component.type === 1" :src="component.text" :style="handleStyle(component.style)" />
@@ -83,7 +84,6 @@ import Header from "./components/Header"
 import Preview from "./components/Preview"
 
 const ADSORPTION = 3 // 吸附补偿像素
-const fixedTop = 70
 let time
 
 const getLeft = (left, width, canvasWidth) => {
@@ -189,6 +189,7 @@ export default {
       canvasWidth: 500,
       canvasHeight: 500
     })
+    const showDragCopy = ref(false)
     const rightMenu = ref()
     const preview = ref()
     const line = ref()
@@ -262,13 +263,10 @@ export default {
       e.stopPropagation()
       const offsetX = e.dataTransfer.getData("offsetX")
       const offsetY = e.dataTransfer.getData("offsetY")
-      // const left = e.offsetX - offsetX > 0 ? getLeft(e.offsetX - offsetX, 100) : 0
-      // const top = e.offsetY - offsetY > 0 ? getTop(e.offsetY - offsetY, 32) : 0
-      // drop会穿透到下方控件, 用client来计算
-      const { clientX, clientY } = e
-      const fixedLeft = (document.body.clientWidth - 460 - canvas.canvasWidth)/2 + 210
-      const left = clientX - fixedLeft - offsetX > 0 ? getLeft(clientX - fixedLeft - offsetX, 100, canvas.canvasWidth) : 0
-      const top = clientY - fixedTop - offsetY > 0 ? getTop(clientY - fixedTop - offsetY, 32, canvas.canvasHeight) : 0
+
+      const { layerX, layerY } = e
+      const left = e.layerX - offsetX > 0 ? getLeft(e.layerX - offsetX, 100) : 0
+      const top = e.layerY - offsetY > 0 ? getTop(e.layerY - offsetY, 32) : 0
 
       const temp = {
         isScroll: 0,
@@ -556,7 +554,8 @@ export default {
       previewCanvas,
       addImg,
       clear,
-      save
+      save,
+      showDragCopy
     }
   }
 

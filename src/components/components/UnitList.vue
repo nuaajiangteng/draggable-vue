@@ -1,5 +1,5 @@
 <template>
-  <div class="handleDragStart" @dragstart="handleDragStart">
+  <div class="handleDragStart" @dragstart="handleDragStart" @dragend="handleDragEnd">
     <h3>表格字段信息</h3>
     <div draggable="true" data-title="商品编码" data-field="productNo" data-type="1" class="unit">商品编码</div>
     <div draggable="true" data-title="商品名称" data-field="productName" data-type="1" class="unit">商品名称</div>
@@ -37,7 +37,7 @@ const toolBoxs = [
 
 export default {
   name: "UnitList",
-  setup() {
+  setup(props, content) {
     const handleDragStart = (e) => {
       e.dataTransfer.setData("field", e.target.dataset.field)
       e.dataTransfer.setData("type", e.target.dataset.type)
@@ -45,9 +45,14 @@ export default {
       e.dataTransfer.setData("border", e.target.dataset.border)
       e.dataTransfer.setData("offsetX", e.offsetX)
       e.dataTransfer.setData("offsetY", e.offsetY)
+      content.emit("showDragCopy", true)
+    }
+    const handleDragEnd = () => {
+      content.emit("showDragCopy", false)
     }
     return {
       handleDragStart,
+      handleDragEnd,
       toolBoxs
     }
   }
