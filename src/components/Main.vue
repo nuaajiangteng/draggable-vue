@@ -15,6 +15,7 @@
       </div> 
       <div class="content-center">
         <div class="draggable" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }" @dragover="handleDragOver" @drop="handleDrop">
+          <!-- draggable-copy 用于拖拽时候作为定位参考 -->
           <div class="draggable-copy" v-show="showDragCopy" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }"></div>
           <div @contextmenu="contextmenu" @mousedown="mousedown($event, index)" :key="index" v-for="(component, index) in components" :class="[curIndex === index ? 'activated' : '','common-class']" :style="handleStyle(component.style, component.type)">
             <Dot :canvas="canvas" @changeStyle="changeStyle" :showDot="curIndex === index && ![5, 6].includes(component.type)" :style="component.style">
