@@ -2,9 +2,8 @@
   <a-upload
     name="files"
     :show-upload-list="false"
-    action="http://svc.gaowangluo.com/bns/file/uploadFiles"
     :before-upload="beforeUpload"
-    @change="handleChange"
+    :customRequest="handleChange"
   >
     <a-button>插入图片</a-button>
   </a-upload>
@@ -37,16 +36,14 @@ export default {
       return isJpgOrPng
     }
 
-    const handleChange = (info) => {
-      if (info.file.status === "done") {
-        const imgUrl = info.file.response.split("message: ")[info.file.response.split("message: ").length - 1]
-        const img = new Image()
-        img.src = imgUrl
-        img.onload = function () {
-          const { width, height } = img
-          const _height = Math.ceil(100/width * height)
-          context.emit("addImg", imgUrl, _height)
-        }
+    const handleChange = () => {
+      const imgUrl = "https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2370333706,3894132172&fm=26&gp=0.jpg"
+      const img = new Image()
+      img.src = imgUrl
+      img.onload = function () {
+        const { width, height } = img
+        const _height = Math.ceil(100/width * height)
+        context.emit("addImg", imgUrl, _height)
       }
     }
 
