@@ -5,7 +5,7 @@
     :before-upload="beforeUpload"
     :customRequest="handleChange"
   >
-    <a-button>插入图片</a-button>
+    <a-button> 插入图片</a-button>
   </a-upload>
   <a-button @click="preview">预览</a-button>
   <a-button type="primary" @click="save">保存</a-button>
