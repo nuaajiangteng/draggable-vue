@@ -70,7 +70,7 @@ const handleNewHeight = (height, top, initHeight, initTop, canvasHeight) => {
 export default {
   name: "Dot",
   props: ["canvas", "style", "showDot"],
-  setup(props, content) {
+  setup(props, context) {
     const showDot = computed(() => props.showDot)
     const getStyle = (point, index) => {
       const { width, height } = props.style
@@ -112,7 +112,7 @@ export default {
         const newWidth = handleNewWidth(width + difX * _offsetX, left + difX * _offsetL, width, left, props.canvas.canvasWidth)
         const newTop = handleNewTop(height + difY * _offsetY, top + difY * _offsetT, height, top)
         const newHeight = handleNewHeight(height + difY * _offsetY, top + difY * _offsetT, height, top, props.canvas.canvasHeight)
-        content.emit("changeStyle", {
+        context.emit("changeStyle", {
           width: newWidth,
           left: newLeft,
           height: newHeight,

@@ -37,7 +37,7 @@ const toolBoxs = [
 
 export default {
   name: "UnitList",
-  setup(props, content) {
+  setup(props, context) {
     const handleDragStart = (e) => {
       e.dataTransfer.setData("field", e.target.dataset.field)
       e.dataTransfer.setData("type", e.target.dataset.type)
@@ -45,10 +45,10 @@ export default {
       e.dataTransfer.setData("border", e.target.dataset.border)
       e.dataTransfer.setData("offsetX", e.offsetX)
       e.dataTransfer.setData("offsetY", e.offsetY)
-      content.emit("showDragCopy", e.target.dataset.type !== "1")
+      context.emit("showDragCopy", e.target.dataset.type !== "1")
     }
     const handleDragEnd = () => {
-      content.emit("showDragCopy", false)
+      context.emit("showDragCopy", false)
     }
     return {
       handleDragStart,

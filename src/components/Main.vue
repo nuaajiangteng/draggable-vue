@@ -204,7 +204,7 @@ export default {
     const line = ref()
     const obj = reactive({
       components: [], // 当前拥有的拖动控件
-      curIndex: null, // 当前选中控件下标
+      curIndex: null // 当前选中控件下标
     })
 
     onMounted(() => {
