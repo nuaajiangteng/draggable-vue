@@ -14,6 +14,8 @@
         <UnitList @showDragCopy="value => showDragCopy = value" />
       </div> 
       <div class="content-center">
+        <div class="top-line" :style="{ width: `${canvas.canvasWidth}px` }" />
+        <div class="bottom-line" :style="{ width: `${canvas.canvasWidth}px` }" />
         <div class="draggable" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }" @dragover="handleDragOver" @drop="handleDrop">
           <!-- draggable-copy 用于拖拽时候作为定位参考 -->
           <div class="draggable-copy" v-show="showDragCopy" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }"></div>
@@ -50,7 +52,13 @@
         </div>
       </div>
       <div class="content-right">
-        <UnitInfo :canvas="canvas" :components="components" :curIndex="curIndex" @barcode="barcode" @qrCode="qrCode" />
+        <UnitInfo
+          :canvas="canvas"
+          :components="components"
+          :curIndex="curIndex"
+          @barcode="barcode"
+          @qrCode="qrCode"
+        />
       </div>
     </div>
     <RightMenu
