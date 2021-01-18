@@ -21,6 +21,7 @@
           <div class="draggable-copy" v-show="showDragCopy" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }"></div>
           <div @contextmenu="contextmenu($event, component, index)" @mousedown="mousedown($event, index)" :key="index" v-for="(component, index) in components" :class="[curIndex === index ? 'activated' : '','common-class']" :style="handleStyle(component.style, component.type)">
             <Dot :canvas="canvas" @changeStyle="changeStyle" :showDot="curIndex === index && ![5, 6].includes(component.type)" :style="component.style">
+              <LockOutlined class="lock" v-show="component.isLock" />
               <img :draggable="false" v-if="component.type === 1" :src="component.text" :style="handleStyle(component.style)" />
               <span v-if="[2, 3].includes(component.type)">{{ component.text }}--{{ index }}</span>
               <span v-if="component.type === 4" />
@@ -81,7 +82,7 @@
 
 <script>
 import { reactive, toRefs, ref, computed, watch, onMounted } from "vue"
-import { CaretLeftOutlined, CaretRightOutlined, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined } from "@ant-design/icons-vue"
+import { CaretLeftOutlined, CaretRightOutlined, DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, LockOutlined } from "@ant-design/icons-vue"
 import JsBarcode from "jsbarcode"
 import QRCode from "qrcodejs2"
 
@@ -192,7 +193,8 @@ export default {
     CaretRightOutlined,
     DeleteOutlined,
     MinusCircleOutlined,
-    PlusCircleOutlined
+    PlusCircleOutlined,
+    LockOutlined
   },
   setup() {
     const canvas = reactive({
