@@ -16,9 +16,11 @@
       <div class="content-center">
         <div class="top-line" :style="{ width: `${canvas.canvasWidth}px` }" />
         <div class="bottom-line" :style="{ width: `${canvas.canvasWidth}px` }" />
-        <div class="draggable" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }" @dragover="handleDragOver" @drop="handleDrop">
-          <!-- draggable-copy 用于拖拽时候作为定位参考 -->
+        <div class="draggable" @mousedown="rangeDown" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }" @dragover="handleDragOver" @drop="handleDrop">
+          <!-- draggable-copy 用于拖拽时候作为定位参考(穿透问题) -->
           <div class="draggable-copy" v-show="showDragCopy" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }"></div>
+
+          <div class="range" v-show="showRange" :style="{ width: `${range.width}px`, height: `${range.height}px`, left: `${range.left}px`, top: `${range.top}px` }"></div>
           <div @contextmenu="contextmenu($event, component, index)" @mousedown="mousedown($event, index)" :key="index" v-for="(component, index) in components" :class="[curIndex === index ? 'activated' : '','common-class']" :style="handleStyle(component.style, component.type)">
             <Dot :canvas="canvas" @changeStyle="changeStyle" :showDot="curIndex === index && ![5, 6].includes(component.type)" :style="component.style">
               <LockOutlined class="lock" v-show="component.isLock" />
@@ -93,6 +95,7 @@ import Dot from "./components/Dot"
 import Line from "./components/Line"
 import Header from "./components/Header"
 import Preview from "./components/Preview"
+import { handleNewLeft, handleNewWidth, handleNewTop, handleNewHeight } from "./components/handleStyle"
 
 const ADSORPTION = 3 // 吸附补偿像素
 let time
@@ -202,13 +205,15 @@ export default {
       canvasHeight: 500
     })
     const showDragCopy = ref(false)
+    const showRange = ref(false)
     const rightMenu = ref()
     const preview = ref()
     const line = ref()
     const obj = reactive({
       components: [], // 当前拥有的拖动控件
       curIndex: null, // 当前左击选中控件下标
-      rightIndex: null // 当前右击选中控件下标
+      rightIndex: null, // 当前右击选中控件下标
+      range: {}
     })
 
     onMounted(() => {
@@ -278,8 +283,8 @@ export default {
       const offsetY = e.dataTransfer.getData("offsetY")
 
       const { layerX, layerY } = e
-      const left = e.layerX - offsetX > 0 ? getLeft(e.layerX - offsetX, 100) : 0
-      const top = e.layerY - offsetY > 0 ? getTop(e.layerY - offsetY, 32) : 0
+      const left = e.layerX - offsetX > 0 ? getLeft(e.layerX - offsetX, 100, canvas.canvasWidth) : 0
+      const top = e.layerY - offsetY > 0 ? getTop(e.layerY - offsetY, 32, canvas.canvasHeight) : 0
 
       const temp = {
         isScroll: 0,
@@ -443,6 +448,7 @@ export default {
 
     const clearActivated = () => {
       obj.curIndex = null
+      showRange.value = false
     }
 
     const addColumn = (flag, fatherIndex) => {
@@ -555,6 +561,34 @@ export default {
     const previewCanvas = () => {
       preview.value.preview()
     }
+ 
+    // 范围选择
+    const rangeDown = (e) => {
+      const { layerX, layerY, clientX, clientY } = e
+      if (e.target.className === "draggable") {
+        const move = (moveEvent) => {
+          showRange.value = true
+          const left = moveEvent.clientX - clientX > 0 ? layerX : layerX - Math.abs((moveEvent.clientX - clientX))
+          const top = moveEvent.clientY - clientY > 0 ? layerY : layerY - Math.abs((moveEvent.clientY - clientY))
+          const width = Math.abs(moveEvent.clientX - clientX)
+          const height = Math.abs(moveEvent.clientY - clientY)
+
+          obj.range = {
+            left: handleNewLeft(width, left, 0, layerX),
+            top: handleNewTop(height, top, 0, layerY),
+            width: handleNewWidth(width, left, 0, layerX, canvas.canvasWidth),
+            height: handleNewHeight(height, top, 0, layerY, canvas.canvasHeight)
+          }
+        }
+        const up = () => {
+          window.removeEventListener("mousemove", move)
+          window.removeEventListener("mouseup", up)
+        }
+        window.addEventListener("mousemove", move)
+        window.addEventListener("mouseup", up)
+      }
+    }
+
     return {
       ...toRefs(obj),
       canvas,
@@ -584,7 +618,9 @@ export default {
       addImg,
       clear,
       save,
-      showDragCopy
+      showDragCopy,
+      rangeDown,
+      showRange
     }
   }
 
