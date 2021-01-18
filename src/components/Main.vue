@@ -19,10 +19,10 @@
         <div class="draggable" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }" @dragover="handleDragOver" @drop="handleDrop">
           <!-- draggable-copy 用于拖拽时候作为定位参考 -->
           <div class="draggable-copy" v-show="showDragCopy" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }"></div>
-          <div @contextmenu="contextmenu" @mousedown="mousedown($event, index)" :key="index" v-for="(component, index) in components" :class="[curIndex === index ? 'activated' : '','common-class']" :style="handleStyle(component.style, component.type)">
+          <div @contextmenu="contextmenu($event, component, index)" @mousedown="mousedown($event, index)" :key="index" v-for="(component, index) in components" :class="[curIndex === index ? 'activated' : '','common-class']" :style="handleStyle(component.style, component.type)">
             <Dot :canvas="canvas" @changeStyle="changeStyle" :showDot="curIndex === index && ![5, 6].includes(component.type)" :style="component.style">
               <img :draggable="false" v-if="component.type === 1" :src="component.text" :style="handleStyle(component.style)" />
-              <span v-if="[2, 3].includes(component.type)">{{ component.text }}</span>
+              <span v-if="[2, 3].includes(component.type)">{{ component.text }}--{{ index }}</span>
               <span v-if="component.type === 4" />
               <div class="table" v-if="component.type === 5">
                 <span @click="addColumn('left', index)" class="left-icon"><CaretLeftOutlined /></span>
@@ -67,6 +67,7 @@
       @placeTop="placeTop"
       @placeBottom="placeBottom"
       @placeUpDown="placeUpDown"
+      @lock="lock"
       @clearActivated="clearActivated"
       @copyComponent="copyComponent"
     />
@@ -204,7 +205,8 @@ export default {
     const line = ref()
     const obj = reactive({
       components: [], // 当前拥有的拖动控件
-      curIndex: null // 当前选中控件下标
+      curIndex: null, // 当前左击选中控件下标
+      rightIndex: null // 当前右击选中控件下标
     })
 
     onMounted(() => {
@@ -294,6 +296,9 @@ export default {
       e.dataTransfer.dropEffect = "copy" // 鼠标进入目标div, 改变鼠标样式, 提示用户
     }
     const mousedown = (e, index) => {
+      if (obj.components[index].isLock) { // 锁定了就不能选中
+        return
+      }
       const brotherComponents = obj.components.filter((component, _index) => _index !== index)
       obj.curIndex = index
       const startclientX = e.clientX
@@ -353,23 +358,24 @@ export default {
       window.addEventListener("mouseup", up)
     }
 
-    const contextmenu = (e) => {
+    const contextmenu = (e, component, index) => {
       e.preventDefault()
-      rightMenu.value.showRightMenu(e)
+      obj.rightIndex = index
+      rightMenu.value.showRightMenu(e, component)
     }
 
     // 删除元素
     const deleteComponent = () => {
-      obj.components.splice(obj.curIndex, 1)
-      obj.curIndex = null
+      obj.components.splice(obj.rightIndex, 1)
       renderComponents()
     }
 
     // 复制元素
     const copyComponent = () => {
-      const temp = JSON.parse(JSON.stringify(obj.components[obj.curIndex]))
+      const temp = JSON.parse(JSON.stringify(obj.components[obj.rightIndex]))
       obj.components.push({
         ...temp,
+        isLock: 0,
         style: {
           ...temp.style,
           left: temp.style.left + 10,
@@ -381,35 +387,46 @@ export default {
 
     // 置顶元素
     const placeTop = () => {
-      const temp = obj.components[obj.curIndex]
-      obj.components.splice(obj.curIndex, 1)
+      const temp = obj.components[obj.rightIndex]
+      obj.components.splice(obj.rightIndex, 1)
       obj.components.push(temp)
-      obj.curIndex = obj.components.length - 1
+      if (!temp.isLock) {
+        obj.curIndex = obj.components.length - 1
+      }
       renderComponents()
     }
 
     // 置底元素
     const placeBottom = () => {
-      const temp = obj.components[obj.curIndex]
-      obj.components.splice(obj.curIndex, 1)
+      const temp = obj.components[obj.rightIndex]
+      obj.components.splice(obj.rightIndex, 1)
       obj.components.unshift(temp)
-      obj.curIndex = 0
+      if (!temp.isLock) {
+        obj.curIndex = 0
+      }
       renderComponents()
     }
 
      // 上移或下移
      const placeUpDown = (number) => {
-      if (obj.curIndex === 0 && number === -1) { // 已经是最下面的不要下移
+      if (obj.rightIndex === 0 && number === -1) { // 已经是最下面的不要下移
         return
       }
-      if (obj.curIndex === obj.components.length - 1 && number === 1) { // 已经是最上面的不要上移
+      if (obj.rightIndex === obj.components.length - 1 && number === 1) { // 已经是最上面的不要上移
         return
       }
-      const temp = obj.components[obj.curIndex]
-      obj.components.splice(obj.curIndex, 1)
-      obj.components.splice(obj.curIndex + number, 0, temp)
-      obj.curIndex = obj.curIndex + number
+      const temp = obj.components[obj.rightIndex]
+      obj.components.splice(obj.rightIndex, 1)
+      obj.components.splice(obj.rightIndex + number, 0, temp)
+      if (!temp.isLock) {
+        obj.curIndex = obj.curIndex + number
+      }
       renderComponents()
+    }
+
+    const lock = () => {
+      obj.components[obj.rightIndex].isLock = Number(!obj.components[obj.rightIndex].isLock)
+      obj.curIndex = null
     }
 
     const changeStyle = ({ width, height, left, top }) => {
@@ -550,6 +567,7 @@ export default {
       copyComponent,
       placeTop,
       placeBottom,
+      lock,
       placeUpDown,
       clearActivated,
       changeStyle,

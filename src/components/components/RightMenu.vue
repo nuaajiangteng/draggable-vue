@@ -6,15 +6,17 @@
     <div @click="placeBottom">置底</div>
     <div @click="placeUpDown(1)">上移</div>
     <div @click="placeUpDown(-1)">下移</div>
+    <div @click="lock">{{ lockName }}</div>
   </div>
 </template>
 
 <script>
-import { reactive, toRefs, onMounted } from "vue"
+import { reactive, toRefs, onMounted, ref } from "vue"
 
 export default {
   name: "RightMenu",
   setup(props, context) {
+    const lockName = ref("锁定")
     onMounted(() => {
       // 监听鼠标事件
       window.addEventListener("mousedown", (e) => {
@@ -31,10 +33,11 @@ export default {
       left: 0,
       top: 0
     })
-    const showRightMenu = (e) => {
+    const showRightMenu = (e, component) => {
       position.left = `${e.clientX}px`
       position.top = `${e.clientY}px`
       position.display = "block"
+      lockName.value = component.isLock ? "解锁" : "锁定"
     }
     const deleteComponent = () => {
       context.emit("deleteComponent")
@@ -56,6 +59,10 @@ export default {
       context.emit("placeUpDown", number)
       position.display = "none"
     }
+    const lock = () => {
+      context.emit("lock")
+      position.display = "none"
+    }
     return {
       showRightMenu,
       ...toRefs(position),
@@ -63,7 +70,9 @@ export default {
       copyComponent,
       placeTop,
       placeBottom,
-      placeUpDown
+      placeUpDown,
+      lock,
+      lockName
     }
   }
 }
