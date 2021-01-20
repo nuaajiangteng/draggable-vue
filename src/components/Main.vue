@@ -28,12 +28,12 @@
               <span v-if="[2, 3].includes(component.type)">{{ component.text }}</span>
               <span v-if="component.type === 4" />
               <div class="table" v-if="component.type === 5">
-                <span @click="addColumn('left', index)" class="left-icon"><CaretLeftOutlined /></span>
+                <span v-show="!component.isLock" @click="addColumn('left', index)" class="left-icon"><CaretLeftOutlined /></span>
                 <table :style="handleStyle(component.style)" border="1">
                   <tr>
                     <td :style="{ width: `${child.width}px` }" :key="_index" v-for="(child, _index) in component.children" @drop="handleDropTable(index, _index, $event)">
                       {{ child.title }}
-                      <div class="actions">
+                      <div class="actions" v-show="!component.isLock">
                         <MinusCircleOutlined class="minus" @click="changeWidth(index, _index, -1)" />
                         <DeleteOutlined @click="deleteColumn(index, _index)" class="delete-icon" />
                         <PlusCircleOutlined class="plus" @click="changeWidth(index, _index, 1)" />
@@ -44,7 +44,7 @@
                     <td :style="{ width: `${child.width}px` }" :key="_index" v-for="(child, _index) in component.children" @drop="handleDropTable(index, _index, $event)">{{ child.field }}</td>
                   </tr>
                 </table>
-                <span @click="addColumn('right', index)" class="right-icon"><CaretRightOutlined /></span>
+                <span v-show="!component.isLock" @click="addColumn('right', index)" class="right-icon"><CaretRightOutlined /></span>
               </div>
               <svg :id="`${component.text}-${index}`" v-if="component.type === 6" />
               <div :draggable="false" :id="`${component.text}-${index}`" v-if="component.type === 7" />
@@ -397,6 +397,7 @@ export default {
     // 删除元素
     const deleteComponent = () => {
       obj.components.splice(obj.rightIndex, 1)
+      obj.curIndex = null
       renderComponents()
     }
 
@@ -591,8 +592,8 @@ export default {
       if (e.target.className === "draggable") {
         const move = (moveEvent) => {
           showRange.value = true
-          const left = moveEvent.clientX - clientX > 0 ? layerX : layerX - Math.abs((moveEvent.clientX - clientX))
-          const top = moveEvent.clientY - clientY > 0 ? layerY : layerY - Math.abs((moveEvent.clientY - clientY))
+          const left = moveEvent.clientX - clientX > 0 ? layerX : layerX - Math.abs(moveEvent.clientX - clientX)
+          const top = moveEvent.clientY - clientY > 0 ? layerY : layerY - Math.abs(moveEvent.clientY - clientY)
           const width = Math.abs(moveEvent.clientX - clientX)
           const height = Math.abs(moveEvent.clientY - clientY)
 
@@ -604,7 +605,7 @@ export default {
           }
         }
         const up = () => {
-          let minLeft = 0, maxLeft = 0, minTop = 0, maxTop = 0
+          let minLeft = -Infinity, maxLeft = 0, minTop = -Infinity, maxTop = 0
           const indexs = []
           const { left, top, width, height } = obj.range
           obj.components.forEach((component, index) => {
@@ -613,15 +614,14 @@ export default {
                 Math.abs((_top + _height) - (height + top)) + Math.abs(_top - top) < (height + _height)) { 
                 //区域接触即为选中   
                 indexs.push(index) 
-                
-                if (!minLeft || minLeft < left - _left) {
+                if (minLeft <= left - _left) {
                   minLeft = left - _left
                 }
                 if (!maxLeft || maxLeft > canvas.canvasWidth - _width - (_left - left)) {
                   maxLeft = canvas.canvasWidth - _width - (_left - left)
                 }
 
-                if (!minTop || minTop < top - _top) {
+                if (minTop < top - _top) {
                   minTop = top - _top
                 }
                 if (!maxTop || maxTop > canvas.canvasHeight - _height - (_top - top)) {
