@@ -20,12 +20,12 @@
           <!-- draggable-copy 用于拖拽时候作为定位参考(穿透问题) -->
           <div class="draggable-copy" v-show="showDragCopy" :style="{ width: `${canvas.canvasWidth}px`, height: `${canvas.canvasHeight}px` }"></div>
 
-          <div class="range" v-show="showRange" :style="{ width: `${range.width}px`, height: `${range.height}px`, left: `${range.left}px`, top: `${range.top}px` }"></div>
+          <div class="range" @mousedown="moveRange" v-show="showRange" :style="{ width: `${range.width}px`, height: `${range.height}px`, left: `${range.left}px`, top: `${range.top}px` }"></div>
           <div @contextmenu="contextmenu($event, component, index)" @mousedown="mousedown($event, index)" :key="index" v-for="(component, index) in components" :class="[curIndex === index ? 'activated' : '','common-class']" :style="handleStyle(component.style, component.type)">
             <Dot :canvas="canvas" @changeStyle="changeStyle" :showDot="curIndex === index && ![5, 6].includes(component.type)" :style="component.style">
               <LockOutlined class="lock" v-show="component.isLock" />
               <img :draggable="false" v-if="component.type === 1" :src="component.text" :style="handleStyle(component.style)" />
-              <span v-if="[2, 3].includes(component.type)">{{ component.text }}--{{ index }}</span>
+              <span v-if="[2, 3].includes(component.type)">{{ component.text }}</span>
               <span v-if="component.type === 4" />
               <div class="table" v-if="component.type === 5">
                 <span @click="addColumn('left', index)" class="left-icon"><CaretLeftOutlined /></span>
@@ -99,8 +99,20 @@ import { handleNewLeft, handleNewWidth, handleNewTop, handleNewHeight } from "./
 
 const ADSORPTION = 3 // 吸附补偿像素
 let time
+let rangeIndexs = []
+let min_max_left = []
+let min_max_top = []
 
-const getLeft = (left, width, canvasWidth) => {
+const getLeft = (left, width, canvasWidth, flag) => {
+  if (flag) {
+    if (left < min_max_left[0]) {
+      return min_max_left[0]
+    } else if (left > min_max_left[1]) {
+      return min_max_left[1]
+    } else {
+      return left
+    }
+  }
   if (left < 0) {
     return 0
   } else if (left + width > canvasWidth) {
@@ -110,7 +122,16 @@ const getLeft = (left, width, canvasWidth) => {
   }
 }
 
-const getTop = (top, height, canvasHeight) => {
+const getTop = (top, height, canvasHeight, flag) => {
+  if (flag) {
+    if (top < min_max_top[0]) {
+      return min_max_top[0]
+    } else if (top > min_max_top[1]) {
+      return min_max_top[1]
+    } else {
+      return top
+    }
+  }
   if (top < 0) {
     return 0
   } else if (top + height > canvasHeight) {
@@ -209,6 +230,7 @@ export default {
     const rightMenu = ref()
     const preview = ref()
     const line = ref()
+
     const obj = reactive({
       components: [], // 当前拥有的拖动控件
       curIndex: null, // 当前左击选中控件下标
@@ -303,6 +325,7 @@ export default {
       e.dataTransfer.dropEffect = "copy" // 鼠标进入目标div, 改变鼠标样式, 提示用户
     }
     const mousedown = (e, index) => {
+      showRange.value = false
       if (obj.components[index].isLock) { // 锁定了就不能选中
         return
       }
@@ -581,12 +604,77 @@ export default {
           }
         }
         const up = () => {
+          let minLeft = 0, maxLeft = 0, minTop = 0, maxTop = 0
+          const indexs = []
+          const { left, top, width, height } = obj.range
+          obj.components.forEach((component, index) => {
+            const { left: _left, top: _top, width: _width, height: _height } = component.style
+            if (!component.isLock && Math.abs((_left + _width) - (width + left)) + Math.abs(_left - left) < (width + _width) &&
+                Math.abs((_top + _height) - (height + top)) + Math.abs(_top - top) < (height + _height)) { 
+                //区域接触即为选中   
+                indexs.push(index) 
+                
+                if (!minLeft || minLeft < left - _left) {
+                  minLeft = left - _left
+                }
+                if (!maxLeft || maxLeft > canvas.canvasWidth - _width - (_left - left)) {
+                  maxLeft = canvas.canvasWidth - _width - (_left - left)
+                }
+
+                if (!minTop || minTop < top - _top) {
+                  minTop = top - _top
+                }
+                if (!maxTop || maxTop > canvas.canvasHeight - _height - (_top - top)) {
+                  maxTop = canvas.canvasHeight - _height - (_top - top)
+                }
+            }
+            rangeIndexs = indexs
+          })
+
+          min_max_left = [minLeft, maxLeft]
+          min_max_top = [minTop, maxTop]
+
+          if (!indexs.length) {
+            showRange.value = false
+          }
+
           window.removeEventListener("mousemove", move)
           window.removeEventListener("mouseup", up)
         }
         window.addEventListener("mousemove", move)
         window.addEventListener("mouseup", up)
       }
+    }
+
+    // 多元素拖动
+    const moveRange = (e) => {
+      const { left, top } = obj.range
+      const { clientX, clientY } = e
+      const inRangeComponents = obj.components.filter((component, index) => rangeIndexs.includes(index))
+                                              .map((component, index) => ({
+                                                left: component.style.left,
+                                                top: component.style.top,
+                                                index: rangeIndexs[index],
+                                                diffLeft: component.style.left - left,
+                                                diffTop: component.style.top - top
+                                              }))
+      const move = (moveEvent) => {
+        const cal_left = getLeft(left + moveEvent.clientX - clientX, "", "", "min_max_left")
+        const cal_top = getTop(top + moveEvent.clientY - clientY, "", "", "min_max_top")
+        obj.range = { ...obj.range, left: cal_left, top: cal_top }
+        inRangeComponents.forEach(component => {
+          obj.components[component.index].style.left = cal_left + component.diffLeft
+          obj.components[component.index].style.top = cal_top + component.diffTop
+        })
+      }
+
+      const up = () => {
+        window.removeEventListener("mousemove", move)
+        window.removeEventListener("mouseup", up)
+      }
+
+      window.addEventListener("mousemove", move)
+      window.addEventListener("mouseup", up)
     }
 
     return {
@@ -620,7 +708,8 @@ export default {
       save,
       showDragCopy,
       rangeDown,
-      showRange
+      showRange,
+      moveRange
     }
   }
 
