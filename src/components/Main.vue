@@ -403,7 +403,7 @@ export default {
 
     // 复制元素
     const copyComponent = () => {
-      const temp = JSON.parse(JSON.stringify(obj.components[obj.rightIndex]))
+      const temp = obj.components[obj.rightIndex]
       obj.components.push({
         ...temp,
         isLock: 0,
