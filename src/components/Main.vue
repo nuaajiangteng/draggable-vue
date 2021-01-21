@@ -326,6 +326,9 @@ export default {
     }
     const mousedown = (e, index) => {
       showRange.value = false
+      if (e.which !== 1) { // 只有左击才有效
+        return
+      }
       if (obj.components[index].isLock) { // 锁定了就不能选中
         return
       }

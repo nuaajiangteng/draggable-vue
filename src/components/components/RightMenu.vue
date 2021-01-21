@@ -34,6 +34,7 @@ export default {
       top: 0
     })
     const showRightMenu = (e, component) => {
+      context.emit("clearActivated") // 激活状态去除
       position.left = `${e.clientX}px`
       position.top = `${e.clientY}px`
       position.display = "block"
