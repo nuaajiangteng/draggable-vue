@@ -5,6 +5,8 @@
  * @LastEditors: 江腾
  * @LastEditTime: 2021-01-21 11:47:47
  -->
+基于vue3的基础拖拽组件, 支持右键操作【复制, 删除, 锁定等】 
+ 
 ## 基础拖拽
 ![image](https://raw.githubusercontent.com/nuaajiangteng/draggable-vue/master/src/images/1.png)
 
